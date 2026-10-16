@@ -40,6 +40,9 @@ const clean=s=>String(s||'').trim().slice(0,100);
 
 // ---------- Login with SMS OTP ----------
 const otps=new Map(),hits=new Map();
+// DEV ONLY: set SKIP_OTP=true in .env to skip SMS + OTP check. Ignored (and warns) when NODE_ENV=production.
+const SKIP_OTP=String(process.env.SKIP_OTP).toLowerCase()==='true'&&process.env.NODE_ENV!=='production';
+if(String(process.env.SKIP_OTP).toLowerCase()==='true'){console.log(SKIP_OTP?'*** WARNING: SKIP_OTP is ON - OTP login is bypassed (dev testing only) ***':'SKIP_OTP ignored because NODE_ENV=production')}
 const normPhone=p=>{p=String(p||'').replace(/\D/g,'');if(p.length===12&&p.startsWith('91'))p=p.slice(2);return /^[6-9]\d{9}$/.test(p)?p:''};
 const limit=(k,max,ms)=>{const n=Date.now(),a=(hits.get(k)||[]).filter(t=>n-t<ms);if(a.length>=max)return false;a.push(n);hits.set(k,a);return true};
 async function sendSms(phone,otp){const p=(process.env.SMS_PROVIDER||'').toLowerCase();
@@ -56,12 +59,13 @@ app.post('/api/auth/send-otp',async(q,r)=>{const phone=normPhone(q.body.phone),n
   const o=otps.get(phone);if(o&&Date.now()-o.sent<30000)return r.status(429).json({error:'Please wait 30 seconds before asking for another OTP'});
   if(!limit('p'+phone,5,36e5)||!limit('i'+q.ip,30,36e5))return r.status(429).json({error:'Too many OTP requests. Please try again later.'});
   const code=String(crypto.randomInt(100000,1000000));
+  if(SKIP_OTP){otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});return r.json({ok:true,skipOtp:true})}
   try{await sendSms(phone,code)}catch(e){console.log('SMS failed:',e.message);return r.status(502).json({error:'Could not send the SMS. Please try again.'})}
   otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});r.json({ok:true})});
 app.post('/api/auth/verify',(q,r)=>{const phone=normPhone(q.body.phone),o=otps.get(phone);
   if(!o||o.exp<Date.now())return r.status(400).json({error:'OTP expired. Please request a new one.'});
   if(++o.tries>5){otps.delete(phone);return r.status(429).json({error:'Too many wrong attempts. Please request a new OTP.'})}
-  if(String(q.body.otp||'').trim()!==o.code)return r.status(400).json({error:'Incorrect OTP'});
+  if(!SKIP_OTP&&String(q.body.otp||'').trim()!==o.code)return r.status(400).json({error:'Incorrect OTP'});
   otps.delete(phone);const old=db.users[phone]||{};
   const u=db.users[phone]={...old,phone,name:o.name,email:o.email||old.email||'',lastLogin:Date.now()};
   Object.keys(db.sessions).forEach(k=>{if(db.sessions[k].exp<Date.now())delete db.sessions[k]});
