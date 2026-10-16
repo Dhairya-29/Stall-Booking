@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang=en>
+
+<head>
+    <meta charset=utf-8>
+    <meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name=theme-color content="#091540">
+    <title>Hotel Shiv · Stall Booking</title>
+    <link rel=preconnect href=https://fonts.googleapis.com>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel=stylesheet>
+    <style>
+        :root {
+            --bg: #eef4fd;
+            --soft: #dce8fb;
+            --c: #fff;
+            --t: #091540;
+            --m: #5a6591;
+            --p: #1b2cc1;
+            --ln: #09154022;
+            --ok: #2e8b57;
+            --am: #e9a319
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent
+        }
+
+        body {
+            margin: 0;
+            font: 15px/1.45 Nunito, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--t)
+        }
+
+        .app {
+            max-width: 560px;
+            margin: auto;
+            min-height: 100vh
+        }
+
+        .v {
+            padding-bottom: 130px
+        }
+
+        .hide {
+            display: none !important
+        }
+
+        .m {
+            color: var(--m)
+        }
+
+        h2 {
+            font-size: 20px;
+            margin: 0 0 4px
+        }
+
+        h3 {
+            font-size: 17px;
+            margin: 22px 18px 10px
+        }
+
+        .hd {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 4
+        }
+
+        .hd h1 {
+            font-size: 19px;
+            margin: 0
+        }
+
+        .ib {
+            background: none;
+            border: 0;
+            font-size: 26px;
+            padding: 0 4px;
+            color: var(--t);
+            cursor: pointer;
+            line-height: 1
+        }
+
+        .btn {
+            background: var(--p);
+            color: #fff;
+            border: 0;
+            border-radius: 12px;
+            padding: 13px 22px;
+            font: 800 15px Nunito, sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block
+        }
+
+        .btn.g {
+            background: #fff;
+            color: var(--p);
+            border: 1.5px solid var(--p)
+        }
+
+        .btn:disabled {
+            opacity: .35
+        }
+
+        .btn.w {
+            width: 100%
+        }
+
+        .loc {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 18px;
+            background: #091540;
+            color: #fff;
+            font-weight: 800;
+            font-size: 19px
+        }
+
+        .loc small {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #abd2fa
+        }
+
+        .car {
+            position: relative;
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            padding: 14px 18px 0;
+            scrollbar-width: none
+        }
+
+        .car::-webkit-scrollbar,
+        .row::-webkit-scrollbar {
+            display: none
+        }
+
+        .sl {
+            flex: 0 0 100%;
+            scroll-snap-align: center;
+            height: 220px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #091540, #1b2cc1) center 15%/cover;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 16px;
+            cursor: pointer
+        }
+
+        .sl:before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(transparent 35%, #000b)
+        }
+
+        .sl>* {
+            position: relative
+        }
+
+        .sl b {
+            font-size: 22px;
+            display: block
+        }
+
+        .pill {
+            background: var(--p);
+            color: #fff;
+            border-radius: 99px;
+            padding: 8px 16px;
+            font-weight: 800
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 10px 0
+        }
+
+        .dots i {
+            cursor: pointer;
+            transition: width .25s;
+            width: 8px;
+            height: 8px;
+            border-radius: 9px;
+            background: #0003
+        }
+
+        .dots i.on {
+            width: 26px;
+            background: var(--p)
+        }
+
+        .row {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding: 0 18px
+        }
+
+        .pc {
+            flex: 0 0 170px;
+            cursor: pointer
+        }
+
+        .im {
+            aspect-ratio: 3/4;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #091540, #1b2cc1) center top/cover
+        }
+
+        .pc b {
+            display: block;
+            margin-top: 8px
+        }
+
+        .hero {
+            aspect-ratio: 4/5;
+            max-height: 70vh;
+            width: 100%;
+            background: linear-gradient(135deg, #091540, #1b2cc1) center top/cover;
+            position: relative
+        }
+
+        .hero:after {
+            content: '';
+            position: absolute;
+            inset: auto 0 0;
+            height: 100px;
+            background: linear-gradient(transparent, var(--bg))
+        }
+
+        .bk {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #0007;
+            color: #fff;
+            border: 0;
+            font-size: 20px;
+            z-index: 2;
+            cursor: pointer
+        }
+
+        .pd {
+            padding: 0 22px
+        }
+
+        .pd h1 {
+            font-size: 26px;
+            margin: 0
+        }
+
+        .inf {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            margin: 16px 0;
+            font-size: 16px
+        }
+
+        .inf span {
+            font-size: 20px;
+            width: 26px
+        }
+
+        .two {
+            border: 1.5px solid #7692ff;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 20px 0
+        }
+
+        .two b {
+            font-size: 19px;
+            display: block
+        }
+
+        .clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            white-space: pre-line
+        }
+
+        .rm {
+            color: var(--p);
+            font-weight: 800;
+            background: none;
+            border: 0;
+            padding: 6px 0;
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer
+        }
+
+        .vc {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px #0001;
+            margin: 0
+        }
+
+        .mm {
+            height: 130px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(90deg, transparent 26%, #fff 26% 28%, transparent 28% 76%, #fff 76% 78%, transparent 78%), linear-gradient(0deg, transparent 28%, #fff 28% 33%, transparent 33% 68%, #fff 68% 73%, transparent 73%), #eeeeef
+        }
+
+        .mm .pill {
+            background: #fff;
+            color: var(--p);
+            box-shadow: 0 2px 8px #0002;
+            border: 0;
+            font-family: inherit;
+            cursor: pointer
+        }
+
+        .vc div.t {
+            padding: 14px 18px
+        }
+
+        .bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 560px;
+            background: #fff;
+            padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+            z-index: 6;
+            box-shadow: 0 -4px 18px #0002
+        }
+
+        .bar .r {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px
+        }
+
+        .tot {
+            font-size: 22px;
+            font-weight: 800
+        }
+
+        .chips {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 8px
+        }
+
+        .chip {
+            background: var(--soft);
+            color: var(--p);
+            border-radius: 99px;
+            padding: 3px 10px;
+            font-weight: 800;
+            font-size: 13px;
+            white-space: nowrap
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px;
+            margin: 12px 18px;
+            box-shadow: 0 2px 10px #0001
+        }
+
+        .sec {
+            padding: 0 18px
+        }
+
+        .legend {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: var(--m);
+            margin: 8px 18px
+        }
+
+        .legend i {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            border-radius: 4px;
+            margin-right: 5px;
+            vertical-align: -2px
+        }
+
+        .hall {
+            position: relative;
+            aspect-ratio: 3/4.1;
+            border: 3px solid var(--t);
+            border-bottom: 3px dashed var(--m);
+            border-radius: 10px;
+            margin: 12px 22px 44px;
+            background: #fff
+        }
+
+        .s {
+            position: absolute;
+            width: 11.5%;
+            aspect-ratio: 1;
+            transform: translate(-50%, -50%);
+            padding: 0;
+            border-radius: 9px;
+            font: 800 12px/1.1 Nunito, sans-serif;
+            background: #fff;
+            color: var(--t);
+            border: 2px solid #7692ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer
+        }
+
+        .s small {
+            font-size: 9px;
+            font-weight: 700;
+            opacity: .75
+        }
+
+        .s.sel {
+            background: var(--p);
+            color: #fff;
+            border-color: var(--p)
+        }
+
+        .s.held,
+        .s.pending {
+            background: #ffe9a8;
+            border-color: var(--am)
+        }
+
+        .s.booked {
+            background: #cfd6e6;
+            border-color: #cfd6e6;
+            color: var(--m)
+        }
+
+        .s:disabled {
+            opacity: 1;
+            cursor: default
+        }
+
+        .entry {
+            position: absolute;
+            bottom: -34px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--t);
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            font-size: 13px;
+            margin: 12px 0 4px
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1.5px solid var(--ln);
+            border-radius: 12px;
+            font: inherit;
+            background: var(--bg);
+            color: var(--t)
+        }
+
+        input:focus {
+            outline: 2px solid var(--p);
+            border-color: transparent
+        }
+
+        .br {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px 0;
+            color: var(--m)
+        }
+
+        .br.tt {
+            border-top: 1px solid var(--ln);
+            margin-top: 8px;
+            padding-top: 14px;
+            color: var(--t);
+            font-weight: 800;
+            font-size: 16px
+        }
+
+        .note {
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 14px 18px;
+            font-size: 14px
+        }
+
+        .note.a {
+            background: var(--soft)
+        }
+
+        .note.b {
+            background: #e8ecfb;
+            color: #2f40c4;
+            font-weight: 700
+        }
+
+        .err {
+            color: #d92d20;
+            font-size: 13px;
+            min-height: 18px;
+            margin: 8px 0 0
+        }
+
+        .big {
+            font-size: 40px;
+            font-weight: 800;
+            margin: 0
+        }
+
+        .timer {
+            height: 6px;
+            background: var(--bg);
+            border-radius: 9px;
+            overflow: hidden;
+            margin: 10px 0
+        }
+
+        .timer div {
+            height: 100%;
+            background: var(--am)
+        }
+
+        .qr {
+            display: block;
+            margin: 14px auto;
+            width: 230px;
+            max-width: 100%;
+            border-radius: 14px;
+            border: 1px solid var(--ln);
+            min-height: 140px;
+            background: #fff
+        }
+
+        .up {
+            display: block;
+            border: 2px dashed var(--p);
+            border-radius: 14px;
+            padding: 14px;
+            margin: 10px 0;
+            color: var(--p);
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center
+        }
+
+        .up img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 10px;
+            margin: 8px auto 0;
+            display: block
+        }
+
+        .nx {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: #fff;
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 2px 10px #0001
+        }
+
+        .nx .btn {
+            padding: 10px 14px;
+            font-size: 13px
+        }
+
+        .lo {
+            margin-left: auto;
+            background: #ffffff26;
+            color: #fff;
+            border: 0;
+            border-radius: 99px;
+            padding: 7px 12px;
+            font: 700 12px Nunito, sans-serif;
+            cursor: pointer
+        }
+
+        .wel {
+            background: linear-gradient(135deg, #091540, #1b2cc1);
+            color: #fff;
+            padding: 38px 22px 30px;
+            border-radius: 0 0 26px 26px;
+            margin-bottom: 6px
+        }
+
+        .wel h2 {
+            font-size: 28px;
+            margin: 0
+        }
+
+        .rm:disabled {
+            opacity: .5
+        }
+
+        .nav {
+            position: fixed;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(520px, calc(100% - 28px));
+            background: #fff;
+            border-radius: 22px;
+            display: flex;
+            box-shadow: 0 4px 24px #0003;
+            z-index: 7
+        }
+
+        .nav button {
+            flex: 1;
+            background: none;
+            border: 0;
+            padding: 12px 0;
+            font: 700 12px Nunito, sans-serif;
+            color: var(--m);
+            cursor: pointer
+        }
+
+        .nav button span {
+            display: block;
+            font-size: 22px
+        }
+
+        .nav button.on {
+            color: var(--p)
+        }
+
+        .st {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 800;
+            background: #ffe9a8
+        }
+
+        .st.approved {
+            background: #c8efd6
+        }
+
+        .st.rejected {
+            background: #f6c4c4
+        }
+
+        .ico {
+            font-size: 46px;
+            text-align: center
+        }
+
+        .tl {
+            display: flex;
+            margin: 16px 0
+        }
+
+        .tl div {
+            flex: 1;
+            text-align: center;
+            font-size: 12px;
+            color: var(--m)
+        }
+
+        .tl div:before {
+            content: '';
+            display: block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #cfd6e6;
+            margin: 0 auto 6px
+        }
+
+        .tl .d {
+            color: var(--t);
+            font-weight: 700
+        }
+
+        .tl .d:before {
+            background: var(--ok)
+        }
+
+        .ov {
+            position: fixed;
+            inset: 0;
+            background: #0007;
+            z-index: 20;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center
+        }
+
+        .ov>div {
+            background: var(--bg);
+            width: 100%;
+            max-width: 560px;
+            max-height: 92vh;
+            overflow: auto;
+            border-radius: 22px 22px 0 0;
+            padding-bottom: 20px
+        }
+
+        .toast {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--t);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 12px;
+            z-index: 30;
+            max-width: 90%
+        }
+    </style>
+</head>
+
+<body>
+    <div class=app>
+        <div id=login class="v hide">
+            <div class=wel>
+                <h2>Welcome 👋</h2>
+                <p style="margin:6px 0 0;color:#abd2fa">Login to book your stall at Hotel Shiv</p>
+            </div>
+            <div class=card id=l1>
+                <h2>Your details</h2><label>Full name</label><input id=ln autocomplete=name><label>Mobile
+                    number</label><input id=lp inputmode=numeric maxlength=10 autocomplete=tel
+                    placeholder="10-digit number"><label>Email (optional — for event reminders)</label><input id=lm
+                    type=email autocomplete=email>
+                <p class=err id=le></p><button class="btn w" onclick=sendOtp()>Send OTP</button>
+            </div>
+            <div class="card hide" id=l2>
+                <h2>Enter OTP</h2>
+                <p class=m>We sent a 6-digit code by SMS to <b id=otpTo></b></p><input id=lo inputmode=numeric
+                    maxlength=6 autocomplete=one-time-code style="text-align:center;font-size:24px;letter-spacing:8px">
+                <p class=err id=le2></p><button class="btn w" onclick=verifyOtp()>Verify & continue</button>
+                <p style="text-align:center;margin:10px 0 0"><button class=rm id=rsd onclick=sendOtp()>Resend
+                        OTP</button> · <button class=rm onclick=chg()>Change number</button></p>
+            </div>
+        </div>
+        <div id=home class="v hide">
+            <div class=loc><span>📍</span>
+                <div>Hotel Shiv<small>Ground Floor Hall</small></div><button class=lo onclick=logout()><span
+                        id=who></span> · Log out</button>
+            </div>
+            <div class=car id=car></div>
+            <div class=dots id=dots></div>
+            <h3>Upcoming events</h3>
+            <div class=row id=cards></div>
+            <div id=none class="m sec hide">No dates open yet. Please check back soon.</div>
+        </div>
+        <div id=detail class="v hide">
+            <div class=hero id=hero><button class=bk onclick="show('home')">←</button></div>
+            <div class=pd id=dd></div>
+            <div class=bar>
+                <div class=r>
+                    <div>
+                        <div class=m style="font-size:13px">From</div>
+                        <div class=tot id=dfrom></div>
+                    </div><button class=btn onclick=startSel()>Select stalls →</button>
+                </div>
+            </div>
+        </div>
+        <div id=stalls class="v hide">
+            <div class=hd><button class=ib onclick="show('detail')">←</button>
+                <h1 id=sn></h1>
+            </div>
+            <div class=sec>
+                <h2>Select stalls</h2>
+                <div class=m>Tap one or more stalls on the hall map</div>
+            </div>
+            <div class=legend><span><i style="border:2px solid #7692ff"></i>Available</span><span><i
+                        style="background:var(--p)"></i>Selected</span><span><i
+                        style="background:#ffe9a8;border:2px solid var(--am)"></i>Held / pending</span><span><i
+                        style="background:#cfd6e6"></i>Booked</span></div>
+            <div class=hall id=map></div>
+            <div class=bar>
+                <div class=chips id=chips></div>
+                <div class=r>
+                    <div>
+                        <div class=tot id=tot>₹0</div>
+                        <div class=m id=cnt style="font-size:13px"></div>
+                    </div><button class=btn id=go disabled onclick=toForm()>Proceed →</button>
+                </div>
+            </div>
+        </div>
+        <div id=form class="v hide">
+            <div class=hd><button class=ib onclick="show('stalls')">←</button>
+                <h1>Review & pay</h1>
+            </div>
+            <div class=card>
+                <h2>Booking details</h2>
+                <div class=br><span>Name</span><b id=fn style="color:var(--t)"></b></div>
+                <div class=br><span>Mobile</span><b id=fp style="color:var(--t)"></b></div>
+                <div class=br><span>Event</span><b id=fe style="color:var(--t);text-align:right"></b></div>
+            </div>
+            <h3 style="margin-bottom:0">Bill Details</h3>
+            <div class=card id=bill></div>
+            <div class="note a"><b>1 booking, multiple stalls.</b><br><span class=m>Your stalls are held for 10 minutes
+                    while you pay, so nobody else can take them.</span></div>
+            <div class="note b">Pay by scanning the UPI QR. Your booking stays Pending for approval until our team
+                checks it.</div>
+            <div class="m sec" style="font-size:13px">ⓘ Non-refundable.</div>
+            <p class="err sec" id=e1></p>
+            <div class=bar>
+                <div class=r>
+                    <div>
+                        <div class=m style="font-size:13px" id=bc></div>
+                        <div class=tot id=bt></div>
+                    </div><button class=btn onclick=hold()>Continue to pay →</button>
+                </div>
+            </div>
+        </div>
+        <div id=pay class="v hide">
+            <div class=hd>
+                <h1>Pay now</h1>
+            </div>
+            <div class=card style="text-align:center">
+                <div class=m>Amount to pay</div>
+                <p class=big>₹<span id=amt></span></p>
+                <div>Stalls <b id=ps></b></div>
+                <div class=timer>
+                    <div id=bar2></div>
+                </div>
+                <div class=m>Held for you · <b id=cd></b> left</div>
+                <img class=qr src=qr.png alt="UPI QR" onerror="this.alt='Add your QR at public/qr.png'">
+                <p class=m>Scan with any UPI app and pay the exact amount. Then enter your transaction ID and upload the
+                    payment-success screenshot.</p><input id=utr placeholder="UTR / Transaction ID (unique)"
+                    style="text-align:center" autocapitalize=characters><label class=up for=shot><span id=upt>📷 Upload
+                        payment screenshot</span><img id=prev class=hide></label><input id=shot type=file accept=image/*
+                    class=hide>
+                <p class=err id=e2></p><button class="btn w" id=pb onclick=paid()>I've paid — submit</button>
+            </div>
+        </div>
+        <div id=done class="v hide">
+            <div class=hd>
+                <h1>Booking status</h1>
+            </div>
+            <div class=card id=st></div>
+            <div class=sec><button class="btn g w" onclick="show('home')">Back to home</button></div>
+        </div>
+        <div id=mine class="v hide">
+            <div class=hd>
+                <h1>My Bookings</h1>
+            </div>
+            <div id=ml></div>
+        </div>
+        <div class="nav hide" id=nav><button id=n1 class=on
+                onclick="show('home')"><span>🧭</span>Explore</button><button id=n2
+                onclick="show('mine')"><span>🎟</span>My Bookings</button></div>
+    </div>
+    <div id=lay class="ov hide" onclick="if(event.target===this)this.classList.add('hide')">
+        <div>
+            <div class=hd style="background:none"><button class=ib onclick="$('lay').classList.add('hide')">✕</button>
+                <h1>Hall layout</h1>
+            </div>
+            <div class=hall id=lmap></div>
+        </div>
+    </div>
+    <div id=toast class="toast hide"></div>
+    <script>
+        const $ = i => document.getElementById(i); let tok = localStorage.getItem('tok') || '', me = null;
+        const J = (u, o = {}) => fetch(u, { ...o, headers: { ...(o.headers || {}), ...(tok ? { Authorization: 'Bearer ' + tok } : {}) } }).then(async r => { const d = await r.json().catch(() => ({})); if (r.status === 401 && tok) { logout(); throw Error('Please log in') } if (!r.ok) throw Error(d.error || 'Something went wrong'); return d });
+        function logout() { localStorage.removeItem('tok'); location.reload() }
+        const post = b => ({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }), rs = n => '₹' + Number(n).toLocaleString('en-IN'), esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        const dt = d => new Date(d + 'T00:00'), fm = d => dt(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        const range = e => e.date === e.endDate ? fm(e.date) : dt(e.date).getMonth() === dt(e.endDate).getMonth() ? dt(e.date).getDate() + ' to ' + fm(e.endDate) : fm(e.date) + ' to ' + fm(e.endDate);
+        const from = e => Math.min(e.price, ...Object.values(e.prices || {}).filter(Boolean)), bgi = e => e.poster ? `style="background-image:url('${e.poster}')"` : '';
+        let evs = [], layout = [], ev, sel = new Set(), status = {}, prices = {}, dflt = 0, timer, bk; const pr = id => prices[id] || dflt;
+        function toast(m) { const t = $('toast'); t.textContent = m; t.classList.remove('hide'); setTimeout(() => t.classList.add('hide'), 3200) }
+        function show(v) {
+            ['login', 'home', 'detail', 'stalls', 'form', 'pay', 'done', 'mine'].forEach(x => $(x).classList.toggle('hide', x !== v)); clearInterval(timer); scrollTo(0, 0);
+            const nv = v === 'home' || v === 'mine'; $('nav').classList.toggle('hide', !nv); $('n1').className = v === 'home' ? 'on' : ''; $('n2').className = v === 'mine' ? 'on' : '';
+            if (v === 'stalls') { poll(); timer = setInterval(poll, 4000) } if (v === 'mine') loadMine()
+        }
+        async function init() {
+            if (!tok) { show('login'); return } me = await J('/api/me'); $('who').textContent = me.name.split(' ')[0]; layout = await J('/api/layout'); evs = await J('/api/events'); $('none').classList.toggle('hide', !!evs.length);
+            $('car').innerHTML = evs.map(e => `<div class=sl ${bgi(e)} data-e=${e.id}><div><b>${esc(e.name)}</b>${range(e)}</div><span class=pill>Book now</span></div>`).join('');
+            $('dots').innerHTML = evs.length > 1 ? evs.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('') : '';
+            const car = $('car'); let ci = 0, pauseUntil = 0; const go = i => { const s = car.children[i]; if (s) car.scrollTo({ left: s.offsetLeft - 18, behavior: 'smooth' }) };
+            car.onscroll = () => { let b = 0, d = 1e9;[...car.children].forEach((s, i) => { const x = Math.abs(s.offsetLeft - 18 - car.scrollLeft); if (x < d) { d = x; b = i } }); ci = b;[...$('dots').children].forEach((x, j) => x.classList.toggle('on', j === b)) };
+            ['touchstart', 'mousedown', 'wheel'].forEach(t => car.addEventListener(t, () => pauseUntil = Date.now() + 5000, { passive: true }));
+            $('dots').onclick = e => { const i = [...$('dots').children].indexOf(e.target); if (i >= 0) { pauseUntil = Date.now() + 5000; go(i) } };
+            setInterval(() => { if (document.hidden || Date.now() < pauseUntil || $('home').classList.contains('hide') || evs.length < 2) return; go((ci + 1) % evs.length) }, 2000);
+            $('cards').innerHTML = evs.map(e => `<div class=pc data-e=${e.id}><div class=im ${bgi(e)}></div><b>${esc(e.name)}</b><div class=m>${range(e)}</div><div><b style="display:inline">${rs(from(e))}</b> <span class=m>onwards</span></div></div>`).join('');
+            document.querySelectorAll('[data-e]').forEach(x => x.onclick = () => openEv(x.dataset.e));
+            $('map').onclick = e => { const b = e.target.closest('[data-id]'); if (!b || b.disabled) return; const i = b.dataset.id; sel.has(i) ? sel.delete(i) : sel.add(i); upd() }
+        }
+        function openEv(id) {
+            ev = evs.find(e => e.id === id); const nx = evs[evs.indexOf(ev) + 1]; const ab = ev.about || 'Book your stall for ' + ev.name + ' at Hotel Shiv, Ground Floor Hall.';
+            $('hero').style.backgroundImage = ev.poster ? `url('${ev.poster}')` : '';
+            $('dd').innerHTML = `<h1>${esc(ev.name)}</h1><div class=m>Hotel Shiv, Ground Floor Hall</div>
+ <div class=inf><span>📅</span>${range(ev)}</div>${ev.time ? `<div class=inf><span>🕗</span>${esc(ev.time)}</div>` : ''}<div class=inf><span>📍</span>Hotel Shiv, Ground Floor Hall</div>
+ <div class=two><div class=m>Stall booking</div><b>From ${rs(from(ev))}</b><span class=m>Pick your stalls on the hall map</span></div>
+ <h2>About</h2><div class="m clamp" id=ab>${esc(ab)}</div>${ab.length > 140 ? '<button class=rm id=rm onclick="ab.classList.remove(\'clamp\');rm.remove()">Read more</button>' : ''}
+ <h2 style="margin-top:22px">Venue</h2><div class=vc><div class=mm><button class=pill onclick=openLay()>🗺 View hall layout</button></div><div class=t><b>Hotel Shiv</b><div class=m>Ground Floor Hall</div></div></div>${nx ? `<h2 style="margin-top:24px">Next event</h2><div class=nx><div class=im ${bgi(nx)} style="width:66px;flex:none;border-radius:12px"></div><div style="flex:1;min-width:0"><b>${esc(nx.name)}</b><div class=m>📅 ${range(nx)}${nx.time ? ' · ' + esc(nx.time) : ''}</div><div class=m>From ${rs(from(nx))}</div></div><button class=btn onclick="openEv('${nx.id}')">View details →</button></div>` : ''}`;
+            $('dfrom').textContent = rs(from(ev)); show('detail')
+        }
+        async function openLay() { const d = await J(`/api/events/${ev.id}/stalls`); status = d.status; prices = d.prices; dflt = d.price; const k = sel; sel = new Set(); drawMap($('lmap'), false); sel = k; $('lay').classList.remove('hide') }
+        function startSel() { sel.clear(); status = {}; prices = ev.prices || {}; dflt = ev.price; $('sn').textContent = ev.name; upd(); show('stalls') }
+        function drawMap(el, inter) {
+            const vary = new Set(layout.map(s => pr(s.id))).size > 1;
+            el.innerHTML = '<div class=entry>⬆ ENTRY</div>' + layout.map(s => { const st = status[s.id], c = st || (sel.has(s.id) ? 'sel' : ''); return `<button class="s ${c}" data-id=${s.id} style="left:${s.x}%;top:${s.y}%" ${st || !inter ? 'disabled' : ''}>${s.id}${vary ? `<small>${rs(pr(s.id))}</small>` : ''}</button>` }).join('')
+        }
+        async function poll() { try { const d = await J(`/api/events/${ev.id}/stalls`); status = d.status; prices = d.prices; dflt = d.price; const lost = [...sel].filter(s => status[s]); lost.forEach(s => sel.delete(s)); if (lost.length) toast('Just taken: ' + lost.join(', ')); upd() } catch (e) { } }
+        function upd() {
+            drawMap($('map'), true); const t = [...sel].reduce((a, s) => a + pr(s), 0); $('tot').textContent = rs(t); $('cnt').textContent = sel.size ? sel.size + ' stall' + (sel.size > 1 ? 's' : '') : 'No stalls selected';
+            $('chips').innerHTML = [...sel].map(s => `<span class=chip>${s}</span>`).join(''); $('chips').style.display = sel.size ? 'flex' : 'none'; $('go').disabled = !sel.size
+        }
+        function toForm() {
+            const t = [...sel].reduce((a, s) => a + pr(s), 0); $('bill').innerHTML = [...sel].map(s => `<div class=br><span>Stall ${s}</span><span>${rs(pr(s))}</span></div>`).join('') + `<div class=br><span>Stalls in total</span><span>${sel.size}</span></div><div class="br tt"><span>Total payable</span><span>${rs(t)}</span></div>`;
+            $('fn').textContent = me.name; $('fp').textContent = '+91 ' + me.phone; $('fe').textContent = ev.name + ' · ' + range(ev); $('bc').textContent = sel.size + ' stall' + (sel.size > 1 ? 's' : ''); $('bt').textContent = rs(t); $('e1').textContent = ''; show('form')
+        }
+        async function hold() {
+            $('e1').textContent = ''; try {
+                bk = await J('/api/bookings', post({ eventId: ev.id, stalls: [...sel] }));
+                shotData = ''; $('shot').value = ''; $('prev').classList.add('hide'); $('upt').textContent = '📷 Upload payment screenshot'; $('utr').value = ''; $('e2').textContent = ''; $('amt').textContent = bk.amount.toLocaleString('en-IN'); $('ps').textContent = bk.stalls.join(', '); show('pay'); tick()
+            } catch (e) { $('e1').textContent = e.message; toast(e.message); poll() }
+        }
+        function tick() { const tot = bk.holdUntil - bk.createdAt; timer = setInterval(() => { const ms = Math.max(0, bk.holdUntil - Date.now()), s = Math.round(ms / 1000); $('cd').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); $('bar2').style.width = ms / tot * 100 + '%'; if (!s) { clearInterval(timer); toast('Hold expired — stalls released'); show('home') } }, 500) }
+        let shotData = '';
+        const readImg = f => new Promise(res => { if (!f) return res(''); const r = new FileReader(); r.onload = () => { const i = new Image(); i.onload = () => { const m = Math.min(1, 1280 / Math.max(i.width, i.height)), k = document.createElement('canvas'); k.width = i.width * m; k.height = i.height * m; k.getContext('2d').drawImage(i, 0, 0, k.width, k.height); res(k.toDataURL('image/jpeg', .8)) }; i.onerror = () => res(''); i.src = r.result }; r.readAsDataURL(f) });
+        $('shot').onchange = async () => { shotData = await readImg($('shot').files[0]); $('prev').src = shotData; $('prev').classList.toggle('hide', !shotData); $('upt').textContent = shotData ? '✓ Screenshot added — tap to change' : '📷 Upload payment screenshot' };
+        async function paid() { $('e2').textContent = ''; if (!shotData) { $('e2').textContent = 'Please upload the payment screenshot'; return } $('pb').disabled = true; try { bk = await J(`/api/bookings/${bk.id}/pay`, post({ utr: $('utr').value, screenshot: shotData })); $('st').innerHTML = sHtml(bk); show('done'); timer = setInterval(async () => { $('st').innerHTML = sHtml(await J('/api/bookings/' + bk.id)) }, 5000) } catch (e) { $('e2').textContent = e.message } $('pb').disabled = false }
+        function sHtml(b) {
+            const m = { submitted: ['⏳', 'Waiting for approval', 'We received your payment details. Our team will verify and confirm shortly. Your stalls stay reserved.'], approved: ['🎉', 'Booking confirmed', 'Your stalls are booked. Get your receipt below.'], rejected: ['❌', 'Payment not verified', 'Please contact the organiser with your booking ID.'], held: ['⏱', 'On hold', 'Complete the payment to confirm.'], expired: ['⌛', 'Hold expired', 'Please select stalls again.'] }[b.status], ap = b.status === 'approved', e = evs.find(e => e.id === b.eventId) || { name: b.eventName };
+            return `<div class=ico>${m[0]}</div><h2 style="text-align:center">${m[1]}</h2><p class=m style="text-align:center">${m[2]}</p><div class=tl><div class=d>Submitted</div><div class="${ap || b.status === 'rejected' ? 'd' : ''}">${b.status === 'rejected' ? 'Rejected' : 'Approved'}</div></div>
+ <div class=br><span>Event</span><span>${esc(e.name || '')}</span></div><div class=br><span>Stalls</span><b style="color:var(--t)">${b.stalls.join(', ')}</b></div><div class=br><span>Amount</span><span>${rs(b.amount)}</span></div><div class=br><span>Booking ID</span><span>${b.id}</span></div>` +
+                (ap ? `<div style="margin-top:12px"><a class=btn href=/receipt/${b.id} target=_blank>View receipt</a> <a class="btn g" target=_blank href="https://wa.me/?text=${encodeURIComponent('My stall booking receipt: ' + location.origin + '/receipt/' + b.id)}">Share</a></div>` : '')
+        }
+        async function loadMine() { try { const bs = await J('/api/my/bookings'); $('ml').innerHTML = bs.map(b => `<div class=card>${sHtml(b).replace(/<div class=tl>.*?<\/div><\/div>/, '')}</div>`).join('') || '<p class="m sec">No bookings yet.</p>' } catch (e) { } }
+        let resendT;
+        async function sendOtp() { $('le').textContent = ''; $('le2').textContent = ''; try { await J('/api/auth/send-otp', post({ name: $('ln').value, phone: $('lp').value, email: $('lm').value })); $('otpTo').textContent = '+91 ' + $('lp').value; $('l1').classList.add('hide'); $('l2').classList.remove('hide'); $('lo').value = ''; $('lo').focus(); let s = 30; $('rsd').disabled = true; clearInterval(resendT); resendT = setInterval(() => { s--; $('rsd').textContent = s > 0 ? `Resend OTP (${s}s)` : 'Resend OTP'; if (s <= 0) { clearInterval(resendT); $('rsd').disabled = false } }, 1000) } catch (e) { ($('l1').classList.contains('hide') ? $('le2') : $('le')).textContent = e.message } }
+        function chg() { $('l2').classList.add('hide'); $('l1').classList.remove('hide') }
+        async function verifyOtp() { $('le2').textContent = ''; try { const d = await J('/api/auth/verify', post({ phone: $('lp').value, otp: $('lo').value })); localStorage.setItem('tok', d.token); location.reload() } catch (e) { $('le2').textContent = e.message } }
+        init().then(() => { if (tok) show('home') }).catch(() => { })</script>
+</body>
+
+</html>
