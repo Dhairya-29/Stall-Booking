@@ -74,13 +74,23 @@ app.post('/api/auth/send-otp',async(q,r)=>{const phone=normPhone(q.body.phone),n
   if(name.length<2)return r.status(400).json({error:'Please enter your name'});
   if(!phone)return r.status(400).json({error:'Enter a valid 10-digit mobile number'});
   if(email&&!/^\S+@\S+\.\S+$/.test(email))return r.status(400).json({error:'Enter a valid email, or leave it blank'});
-  const code=String(crypto.randomInt(100000,1000000));
-  otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});
+
+  // When SMS is disabled: directly log the user in and return the token immediately!
   if(!ENABLE_SMS){
-    return r.json({ok:true,skipOtp:true});
+    const old=db.users[phone]||{};
+    const u=db.users[phone]={...old,phone,name,email:email||old.email||'',lastLogin:Date.now()};
+    Object.keys(db.sessions).forEach(k=>{if(db.sessions[k].exp<Date.now())delete db.sessions[k]});
+    const token=crypto.randomBytes(24).toString('hex');
+    db.sessions[token]={phone,exp:Date.now()+30*864e5};
+    save();
+    return r.json({ok:true,skipOtp:true,token,user:u});
   }
+
+  // When SMS is enabled:
   const o=otps.get(phone);if(o&&Date.now()-o.sent<30000)return r.status(429).json({error:'Please wait 30 seconds before asking for another OTP'});
   if(!limit('p'+phone,5,36e5)||!limit('i'+q.ip,30,36e5))return r.status(429).json({error:'Too many OTP requests. Please try again later.'});
+  const code=String(crypto.randomInt(100000,1000000));
+  otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});
   try{await sendSms(phone,code)}catch(e){console.log('SMS failed:',e.message);return r.status(502).json({error:'Could not send the SMS. Please try again.'})}
   r.json({ok:true})});
 app.post('/api/auth/verify',(q,r)=>{const phone=normPhone(q.body.phone),o=otps.get(phone);
