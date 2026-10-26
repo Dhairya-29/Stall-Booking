@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: hotel-shiv-stall-booking
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ADMIN_PASSWORD
+        sync: false
