@@ -1,52 +1,1331 @@
-<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Admin · Hotel Shiv</title><style>
-:root{--bg:#eef4fd;--c:#fff;--t:#091540;--m:#5a6591;--p:#1b2cc1;--ln:#09154022}
-*{box-sizing:border-box}body{margin:0;font:14px/1.45 system-ui,sans-serif;background:var(--bg);color:var(--t)}header{background:#091540;color:#fff;padding:14px 16px;font-weight:800;font-size:17px}main{max-width:820px;margin:auto;padding:14px}
-.tabs,.chips{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}.tabs button{flex:1}
-button{padding:10px 14px;border:0;border-radius:10px;color:#fff;background:var(--p);font:600 14px inherit;font-family:inherit;cursor:pointer}button.g{background:var(--c);color:var(--t);border:1px solid var(--ln)}button.on{background:var(--p);color:#fff}.a{background:#16a34a}.r{background:#d92d20}
-.c{background:var(--c);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 1px 6px #0001}input,textarea{padding:10px;border:1.5px solid var(--ln);border-radius:9px;font:inherit;background:var(--bg);color:var(--t);width:100%}label{font-size:12px;font-weight:600;color:var(--m)}
-.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px}
-.b{display:inline-block;padding:2px 9px;border-radius:99px;background:#ddd;color:#222;font-size:12px;font-weight:600}.submitted{background:#ffe9a8}.approved{background:#bdf0d0}.rejected{background:#f6c4c4}.held{background:#dde4ff}
-.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.m{color:var(--m)}summary{cursor:pointer;font-weight:600;margin-top:10px}.hide{display:none}
-.hdr{display:flex;justify-content:space-between;align-items:center}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:6px 0 12px}.stat{background:var(--c);border-radius:14px;padding:12px 14px;box-shadow:0 1px 6px #0001}.stat b{font-size:22px;display:block}
-.bc{display:flex;gap:14px}.th{width:88px;height:116px;border-radius:10px;object-fit:cover;background:var(--bg);border:1px solid var(--ln);cursor:zoom-in;flex:none}.noimg{width:88px;height:116px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;color:var(--m);flex:none}
-.sc{display:inline-block;background:var(--bg);border-radius:99px;padding:1px 9px;font-weight:700;margin:2px 4px 2px 0}.utr{font-family:ui-monospace,monospace;background:var(--bg);padding:2px 8px;border-radius:6px;cursor:pointer}.bd{flex:1;min-width:0}
-#lb{position:fixed;inset:0;background:#000d;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}#lb.hide{display:none}#lb img{max-width:100%;max-height:100%;border-radius:10px}
-#sq{margin-bottom:8px}
-</style></head><body><header class=hdr><span>🛠 Hotel Shiv · Admin</span><button class=g onclick="sessionStorage.clear();location.reload()">Log out</button></header><main>
-<div id=rem></div><div class=tabs><button id=t1 onclick="tab(1)">Bookings</button><button id=t2 class=g onclick="tab(2)">Dates & Pricing</button></div>
-<div id=v1><div class=stats id=stats></div><input id=sq placeholder='🔍 Search name, phone, UTR or stall' oninput='q=this.value;drawB()'><div class=chips id=fl></div><div id=l></div></div><div id=lb class=hide onclick="this.classList.add('hide')"><img id=lbi></div>
-<div id=v2 class=hide><div class=c><b>Add a new date</b><div class=g2 style="margin-top:8px"><div><label>Event name</label><input id=n></div><div><label>Start date</label><input id=d type=date></div><div><label>End date</label><input id=ed type=date></div><div><label>Default price / stall (₹)</label><input id=p type=number min=1></div><div><label>Time</label><input id=tm value='8:00 PM'></div><div><label>Poster / brochure image</label><input id=pf type=file accept=image/*></div><div style='grid-column:1/-1'><label>About</label><textarea id=ab rows=3></textarea></div><button onclick=addEv()>Add</button></div><div class=m style="margin-top:6px">Venue is fixed: Hotel Shiv, Ground Floor Hall</div></div><div id=el></div></div>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · Hotel Shiv</title>
+<meta name="description" content="Hotel Shiv stall booking admin dashboard — manage bookings, events, pricing and approvals.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏨</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens ─────────────────────────── */
+:root {
+  --bg: #0f1117;
+  --surface: #181a24;
+  --surface2: #1f2231;
+  --surface3: #272a38;
+  --border: rgba(255,255,255,.07);
+  --border-hover: rgba(255,255,255,.14);
+  --text: #eef0f6;
+  --text2: #9ca3be;
+  --text3: #6b7294;
+  --accent: #6c5ce7;
+  --accent-glow: rgba(108,92,231,.25);
+  --accent2: #a78bfa;
+  --green: #34d399;
+  --green-bg: rgba(52,211,153,.12);
+  --amber: #fbbf24;
+  --amber-bg: rgba(251,191,36,.12);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,.12);
+  --blue: #60a5fa;
+  --blue-bg: rgba(96,165,250,.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,.35);
+  --transition: .22s cubic-bezier(.4,0,.2,1);
+  --transition-slow: .35s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Reset ────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 99px; }
+
+a { color: var(--accent2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Layout ───────────────────────────────── */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ──────────────────────────────── */
+.sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  z-index: 20;
+  transition: transform var(--transition);
+}
+.sidebar-brand {
+  padding: 24px 22px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-brand h1 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-brand h1 span {
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.sidebar-brand small {
+  display: block;
+  color: var(--text3);
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  font: 500 14px 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all var(--transition);
+  width: 100%;
+  text-align: left;
+  position: relative;
+}
+.nav-btn:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+.nav-btn.active {
+  background: var(--accent-glow);
+  color: var(--accent2);
+  font-weight: 600;
+}
+.nav-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 20px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+  animation: accentSlide .25s ease;
+}
+@keyframes accentSlide {
+  from { height: 0; opacity: 0; }
+  to { height: 20px; opacity: 1; }
+}
+.nav-btn .icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.nav-btn .badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 99px;
+  min-width: 22px;
+  text-align: center;
+  animation: badgePop .4s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes badgePop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font: 500 13px 'Inter', sans-serif;
+  cursor: pointer;
+  width: 100%;
+  transition: all var(--transition);
+}
+.logout-btn:hover {
+  background: var(--red-bg);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* ── Mobile sidebar toggle ────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 19;
+}
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 14px; left: 14px;
+  z-index: 21;
+  width: 42px; height: 42px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .menu-toggle { display: flex; }
+  .main { margin-left: 0 !important; }
+  .main-inner { padding: 70px 14px 24px !important; }
+}
+
+/* ── Main area ────────────────────────────── */
+.main {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+}
+.main-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 32px 40px;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.page-header h2 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+.page-header-sub {
+  color: var(--text3);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── Reminder banners ─────────────────────── */
+#rem .reminder-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+#rem .reminder-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+}
+#rem .reminder-card.live::before { background: var(--green); }
+#rem .reminder-card.soon::before { background: var(--red); }
+#rem .reminder-card.upcoming::before { background: var(--amber); }
+#rem .reminder-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow);
+}
+
+.reminder-left b {
+  font-size: 15px;
+  font-weight: 700;
+}
+.reminder-left .meta {
+  color: var(--text3);
+  font-size: 13px;
+  margin-top: 2px;
+}
+.reminder-right {
+  text-align: right;
+}
+.reminder-right .countdown {
+  font-weight: 700;
+  font-size: 14px;
+}
+.reminder-right .sub {
+  color: var(--text3);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* ── Stats grid ───────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: .15;
+}
+.stat-card.purple::after { background: var(--accent); }
+.stat-card.green::after { background: var(--green); }
+.stat-card.blue::after { background: var(--blue); }
+.stat-card.amber::after { background: var(--amber); }
+.stat-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-label .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.stat-card.purple .dot { background: var(--accent); }
+.stat-card.green .dot { background: var(--green); }
+.stat-card.blue .dot { background: var(--blue); }
+.stat-card.amber .dot { background: var(--amber); }
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+.stat-card.purple .stat-value { color: var(--accent2); }
+.stat-card.green .stat-value { color: var(--green); }
+.stat-card.blue .stat-value { color: var(--blue); }
+.stat-card.amber .stat-value { color: var(--amber); }
+
+/* ── Search ───────────────────────────────── */
+.search-bar {
+  position: relative;
+  margin-bottom: 16px;
+}
+.search-bar input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: 400 14px 'Inter', sans-serif;
+  transition: all var(--transition);
+}
+.search-bar input::placeholder { color: var(--text3); }
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.search-bar::before {
+  content: '🔍';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  pointer-events: none;
+}
+
+/* ── Filter chips ─────────────────────────── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.filter-chip {
+  padding: 7px 16px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font: 500 13px 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.filter-chip:hover {
+  border-color: var(--border-hover);
+  background: var(--surface2);
+  color: var(--text);
+}
+.filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── Booking cards ────────────────────────── */
+.booking-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 16px;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-in .booking-card { animation: slideUp .35s ease both; }
+.booking-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow);
+}
+
+.booking-thumb {
+  width: 80px;
+  height: 106px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  cursor: zoom-in;
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+.booking-thumb:hover { transform: scale(1.04); }
+.no-thumb {
+  width: 80px;
+  height: 106px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+.booking-body { flex: 1; min-width: 0; }
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.booking-name {
+  font-weight: 700;
+  font-size: 15px;
+}
+.booking-phone {
+  color: var(--accent2);
+  font-size: 13px;
+  margin-left: 6px;
+}
+.booking-meta {
+  color: var(--text3);
+  font-size: 12px;
+  margin-top: 4px;
+}
+.booking-stalls {
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.stall-chip {
+  display: inline-block;
+  background: var(--surface3);
+  border-radius: var(--radius-xs);
+  padding: 2px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text);
+  transition: background var(--transition), transform var(--transition);
+}
+.stall-chip:hover {
+  background: var(--accent-glow);
+  transform: translateY(-1px);
+}
+.booking-amount {
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--green);
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  transition: transform var(--transition);
+}
+.status-badge:hover { transform: scale(1.05); }
+.status-badge.submitted { background: var(--amber-bg); color: var(--amber); }
+.status-badge.approved { background: var(--green-bg); color: var(--green); }
+.status-badge.rejected { background: var(--red-bg); color: var(--red); }
+.status-badge.held { background: var(--blue-bg); color: var(--blue); }
+
+.booking-utr {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+.utr-code {
+  font-family: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+  background: var(--surface3);
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  font-size: 12px;
+  position: relative;
+}
+.utr-code:hover { background: var(--accent-glow); }
+
+.booking-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Buttons ──────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font: 600 13px 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn:active { transform: scale(.97); }
+
+.btn-approve {
+  background: var(--green);
+  color: #0f1117;
+}
+.btn-approve:hover { background: #4ade80; box-shadow: 0 0 16px rgba(52,211,153,.3); }
+.btn-reject {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid rgba(248,113,113,.25);
+}
+.btn-reject:hover { background: rgba(248,113,113,.2); }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: #7c6ef0; box-shadow: 0 0 16px var(--accent-glow); }
+.btn-secondary {
+  background: var(--surface3);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: var(--surface2); color: var(--text); border-color: var(--border-hover); }
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid rgba(248,113,113,.2);
+}
+.btn-danger:hover { background: var(--red-bg); }
+
+.btn-receipt {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid rgba(96,165,250,.2);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font: 600 13px 'Inter', sans-serif;
+  transition: all var(--transition);
+}
+.btn-receipt:hover { background: rgba(96,165,250,.2); text-decoration: none; }
+
+/* ── Events / Dates section ───────────────── */
+.event-form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.event-form-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text);
+  font: 400 14px 'Inter', sans-serif;
+  transition: all var(--transition);
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.form-group input::placeholder { color: var(--text3); }
+.form-group textarea { resize: vertical; min-height: 70px; }
+.form-group input[type="file"] {
+  padding: 8px;
+  cursor: pointer;
+}
+.form-group input[type="file"]::file-selector-button {
+  padding: 4px 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: var(--surface3);
+  color: var(--text2);
+  font: 500 12px 'Inter', sans-serif;
+  cursor: pointer;
+  margin-right: 8px;
+}
+.full-span { grid-column: 1 / -1; }
+.form-footer {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.form-hint {
+  color: var(--text3);
+  font-size: 12px;
+}
+
+/* ── Event list cards ─────────────────────── */
+.event-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 14px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.animate-in .event-card { animation: slideUp .35s ease both; }
+.event-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+.event-card.ended-card {
+  opacity: .6;
+}
+.ended-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 14px;
+  color: var(--text3);
+  font-size: 13px;
+  font-weight: 600;
+}
+.ended-divider::before,
+.ended-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.event-card .form-grid { margin-bottom: 14px; }
+.event-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ── Custom price grid ────────────────────── */
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.price-grid .form-group label {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+.price-grid .form-group input {
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
+/* ── Details (collapsible) ────────────────── */
+details {
+  margin-top: 10px;
+}
+details summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent2);
+  user-select: none;
+  transition: color var(--transition);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+details summary::before {
+  content: '▸';
+  transition: transform var(--transition);
+  font-size: 11px;
+}
+details[open] summary::before {
+  transform: rotate(90deg);
+}
+details summary:hover { color: var(--accent); }
+
+/* ── Lightbox ─────────────────────────────── */
+#lb {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  backdrop-filter: blur(12px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  cursor: zoom-out;
+  animation: fadeIn .2s ease;
+}
+#lb.hide { display: none; }
+#lb img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: var(--radius);
+  box-shadow: 0 12px 48px rgba(0,0,0,.5);
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Empty state ──────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text3);
+}
+.empty-state .icon {
+  font-size: 42px;
+  margin-bottom: 12px;
+  opacity: .5;
+}
+.empty-state p {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* ── Tab views ────────────────────────────── */
+.hide { display: none !important; }
+
+/* ── Toast-style animation for saved ──────── */
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+.saved-pulse { animation: pulse .3s ease; }
+
+/* ── Copy toast ───────────────────────────── */
+.copy-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface2);
+  color: var(--green);
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--green);
+  font: 600 13px 'Inter', sans-serif;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  animation: toastIn .3s ease forwards;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+}
+.copy-toast.out { animation: toastOut .25s ease forwards; }
+@keyframes toastIn {
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes toastOut {
+  to { opacity: 0; transform: translateX(-50%) translateY(10px); }
+}
+
+/* ── Smooth focus transitions ─────────────── */
+.search-bar input,
+.form-group input,
+.form-group textarea {
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+.form-group input:hover,
+.form-group textarea:hover {
+  border-color: var(--border-hover);
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 520px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .booking-card { flex-direction: column; }
+  .booking-thumb, .no-thumb { width: 100%; height: 160px; }
+  .page-header h2 { font-size: 20px; }
+  .stat-value { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<!-- Mobile menu toggle -->
+<button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1><span>🏨</span> Hotel Shiv</h1>
+      <small>Admin Dashboard</small>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" id="navBookings" onclick="tab(1)">
+        <span class="icon">📋</span>
+        Bookings
+        <span class="badge hide" id="pendingBadge">0</span>
+      </button>
+      <button class="nav-btn" id="navEvents" onclick="tab(2)">
+        <span class="icon">📅</span>
+        Dates & Pricing
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="sessionStorage.clear();location.reload()">
+        <span>🚪</span> Log out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="main-inner">
+
+      <!-- ── BOOKINGS TAB ────────────────── -->
+      <div id="v1">
+        <div class="page-header">
+          <div>
+            <h2>Bookings</h2>
+            <div class="page-header-sub">Manage stall bookings and approvals</div>
+          </div>
+        </div>
+
+        <div id="rem"></div>
+        <div class="stats-grid" id="stats"></div>
+
+        <div class="search-bar">
+          <input id="sq" placeholder="Search by name, phone, UTR or stall…" oninput="q=this.value;drawB()">
+        </div>
+
+        <div class="filter-bar" id="fl"></div>
+        <div id="l"></div>
+      </div>
+
+      <!-- ── DATES & PRICING TAB ─────────── -->
+      <div id="v2" class="hide">
+        <div class="page-header">
+          <div>
+            <h2>Dates & Pricing</h2>
+            <div class="page-header-sub">Create and manage events</div>
+          </div>
+        </div>
+
+        <div class="event-form-card">
+          <h3>✨ Add a new event</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Event name</label>
+              <input id="n" placeholder="e.g. Expo 2026">
+            </div>
+            <div class="form-group">
+              <label>Start date</label>
+              <input id="d" type="date">
+            </div>
+            <div class="form-group">
+              <label>End date</label>
+              <input id="ed" type="date">
+            </div>
+            <div class="form-group">
+              <label>Default price / stall (₹)</label>
+              <input id="p" type="number" min="1" placeholder="5000">
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <input id="tm" value="8:00 PM">
+            </div>
+            <div class="form-group">
+              <label>Poster / brochure image</label>
+              <input id="pf" type="file" accept="image/*">
+            </div>
+            <div class="form-group full-span">
+              <label>About</label>
+              <textarea id="ab" rows="3" placeholder="Describe the event…"></textarea>
+            </div>
+          </div>
+          <div class="form-footer">
+            <button class="btn btn-primary" onclick="addEv()">✚ Add Event</button>
+            <span class="form-hint">📍 Venue is fixed: Hotel Shiv, Ground Floor Hall</span>
+          </div>
+        </div>
+        <div id="el"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Lightbox -->
+<div id="lb" class="hide" onclick="this.classList.add('hide')">
+  <img id="lbi">
+</div>
+
 <script>
-let k=sessionStorage.k||(sessionStorage.k=prompt('Admin password')||''),f='submitted',all=[],evs=[],lay=[];
-const $=i=>document.getElementById(i),H=()=>({'x-admin':k,'Content-Type':'application/json'}),rs=n=>'₹'+Number(n).toLocaleString('en-IN');
-const J=(u,o={})=>fetch(u,{...o,headers:H()}).then(async r=>{const d=await r.json();if(!r.ok){if(r.status==401){sessionStorage.clear();location.reload()}throw Error(d.error)}return d});
-const E=e=>alert(e.message);
-const readImg=f=>new Promise(res=>{if(!f)return res(undefined);const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const m=Math.min(1,1000/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*m;c.height=i.height*m;c.getContext('2d').drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.82))};i.src=r.result};r.readAsDataURL(f)});
-function tab(n){$('v1').classList.toggle('hide',n!==1);$('v2').classList.toggle('hide',n!==2);$('t1').className=n===1?'':'g';$('t2').className=n===2?'':'g'}
-async function load(){const d=await J('/api/admin/bookings');all=d.bookings;evs=d.events;if(!lay.length)lay=await J('/api/layout');drawRem();const sb=JSON.stringify(all);if(sb!==window._sb){window._sb=sb;drawB()}const sg=JSON.stringify(evs);if(sg!==window._sg){window._sg=sg;drawE()}}
-const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),cache=new Map();let q='';
-function thumbs(){document.querySelectorAll('img[data-sh]').forEach(async i=>{const id=i.dataset.sh;if(cache.has(id)){i.src=cache.get(id);return}try{const r=await fetch(`/api/admin/bookings/${id}/screenshot`,{headers:{'x-admin':k}});if(!r.ok)return;const u=URL.createObjectURL(await r.blob());cache.set(id,u);i.src=u}catch(e){}})}
-function zoom(id){if(cache.has(id)){$('lbi').src=cache.get(id);$('lb').classList.remove('hide')}}
-function copy(t){navigator.clipboard&&navigator.clipboard.writeText(t);}
-function drawRem(){const up=evs.filter(e=>!e.ended).sort((x,y)=>x.date.localeCompare(y.date));
- $('rem').innerHTML=up.map(e=>{const live=e.startsIn<=0,col=live?'#15803d':e.startsIn<=3?'#b91c1c':'#b45309',w=live?'🟢 Live now · ends '+(e.endsIn<=0?'today':'in '+e.endsIn+' day'+(e.endsIn>1?'s':'')):'⏰ '+(e.startsIn===1?'Starts tomorrow':'Starts in '+e.startsIn+' days');
-  return `<div class=c style="border-left:5px solid ${col}"><div class=row><div><b>${esc(e.name)}</b><div class=m>${e.date}${e.endDate!==e.date?' → '+e.endDate:''}</div></div><div style="text-align:right"><b style="color:${col}">${w}</b><div class=m>${e.booked}/${lay.length} stalls booked · ${e.pending} awaiting approval</div></div></div></div>`}).join('')}
-function drawB(){const n=id=>(evs.find(e=>e.id===id)||{}).name||'',vis=all.filter(b=>b.status!=='expired'),cnt=s=>s?all.filter(b=>b.status===s).length:vis.length,ap=all.filter(b=>b.status==='approved');
- $('stats').innerHTML=[['Needs approval',cnt('submitted'),'#b45309'],['Approved',ap.length,'#15803d'],['Stalls booked',ap.reduce((x,b)=>x+b.stalls.length,0),'#1b2cc1'],['Revenue',rs(ap.reduce((x,b)=>x+b.amount,0)),'#091540']].map(([t,v,c])=>`<div class=stat><span class=m>${t}</span><b style="color:${c}">${v}</b></div>`).join('');
- document.title=(cnt('submitted')?'('+cnt('submitted')+') ':'')+'Admin · Hotel Shiv';$('fl').innerHTML=[['submitted','Needs approval'],['approved','Approved'],['rejected','Rejected'],['','All']].map(([s,t])=>`<button class="${f===s?'on':'g'}" onclick="f='${s}';drawB()">${t} (${cnt(s)})</button>`).join('');
- const ql=q.trim().toLowerCase(),L=vis.filter(b=>(!f||b.status===f)&&(!ql||[b.name,b.phone,b.utr,b.stalls.join(' ')].join(' ').toLowerCase().includes(ql)));
- $('l').innerHTML=L.map(b=>`<div class="c bc">${b.shot?`<img class=th data-sh=${b.id} onclick="zoom('${b.id}')" alt="Payment screenshot">`:'<div class=noimg>No screenshot</div>'}<div class=bd>
- <div class=row><div><b>${esc(b.name)}</b> · <a href="tel:${esc(b.phone)}">${esc(b.phone)}</a></div><span class="b ${b.status}">${b.status}</span></div>
- <div class=m>${esc(n(b.eventId))} · ${new Date(b.createdAt).toLocaleString('en-IN')}</div>
- <div style="margin:6px 0">${b.stalls.map(s=>`<span class=sc>${s}</span>`).join('')} <b>${rs(b.amount)}</b></div>
- <div>UTR <span class=utr title="Tap to copy" onclick="copy('${esc(b.utr||'')}')">${esc(b.utr||'—')}</span></div><div style="margin-top:10px">`+
- (b.status==='submitted'?`<button class=a onclick="act('${b.id}','approve')">✓ Approve</button> <button class=r onclick="act('${b.id}','reject')">✕ Reject</button>`:'')+(b.status==='approved'?`<a href=/receipt/${b.id} target=_blank>🧾 Receipt ${b.receiptNo}</a>`:'')+'</div></div></div>').join('')||'<p class=m>Nothing here.</p>';thumbs()}
-function drawE(){$('el').innerHTML=[...evs].sort((x,y)=>(x.ended-y.ended)||x.date.localeCompare(y.date)).map((e,i,arr)=>`${e.ended&&(i===0||!arr[i-1].ended)?'<div class=m style="margin:16px 4px 4px;font-weight:700">Ended — hidden from the website, data is kept. To show an event again, change its end date and save.</div>':''}<div class=c data-id=${e.id}${e.ended?' style="opacity:.75"':''}><div class=g2><div><label>Name</label><input class=en value="${e.name}"></div><div><label>Start</label><input class=es type=date value=${e.date}></div><div><label>End</label><input class=ee type=date value=${e.endDate}></div><div><label>Default price / stall (₹)</label><input class=ep type=number value=${e.price}></div><div><label>Time</label><input class=et value="${e.time||''}"></div><div><label>Poster ${e.poster?'(uploaded ✓)':''}</label><input class=ef type=file accept=image/*></div><div style="grid-column:1/-1"><label>About</label><textarea class=ea rows=3>${e.about||''}</textarea></div></div>
- <details ${Object.keys(e.prices).length?'open':''}><summary>Custom price per stall (leave blank to use default)</summary><div class=pg>${lay.map(s=>`<div><label>${s.id}</label><input class=sp data-s=${s.id} type=number min=1 placeholder=${e.price} value="${e.prices[s.id]||''}"></div>`).join('')}</div></details>
- <div style="margin-top:10px"><button onclick="saveEv('${e.id}',this)">Save changes</button> <button class="g" onclick="delEv('${e.id}')">Delete</button></div></div>`).join('')}
-async function saveEv(id,btn){const c=btn.closest('.c'),prices={};c.querySelectorAll('.sp').forEach(i=>{if(+i.value>0)prices[i.dataset.s]=+i.value});
- try{const poster=await readImg(c.querySelector('.ef').files[0]);await J('/api/admin/events/'+id,{method:'PUT',body:JSON.stringify({poster,time:c.querySelector('.et').value,about:c.querySelector('.ea').value,name:c.querySelector('.en').value,date:c.querySelector('.es').value,endDate:c.querySelector('.ee').value,price:c.querySelector('.ep').value,prices})});btn.textContent='Saved ✓';setTimeout(()=>btn.textContent='Save changes',1500);load()}catch(e){E(e)}}
-async function delEv(id){if(confirm('Delete this date?'))try{await J('/api/admin/events/'+id,{method:'DELETE'});load()}catch(e){E(e)}}
-async function addEv(){try{const poster=await readImg($('pf').files[0]);await J('/api/admin/events',{method:'POST',body:JSON.stringify({poster,time:$('tm').value,about:$('ab').value,name:n.value,date:d.value,endDate:ed.value,price:p.value})});n.value=p.value='';load()}catch(e){E(e)}}
-async function act(id,a){if(confirm(a==='approve'?'Approve? Check that the amount and UTR match your bank statement and the screenshot.':'Reject this booking and release the stalls?'))try{await J(`/api/admin/bookings/${id}/${a}`,{method:'POST'});load()}catch(e){E(e)}}
-load();setInterval(load,6000)</script></main></body></html>
+/* ── State ──────────────────────────────── */
+let k = sessionStorage.k || (sessionStorage.k = prompt('Admin password') || '');
+let f = 'submitted', all = [], evs = [], lay = [], q = '';
+
+const $ = i => document.getElementById(i);
+const API = (location.protocol === 'file:' || (location.port && location.port !== '3000')) ? 'http://localhost:3000' : '';
+const H = () => ({ 'x-admin': k, 'Content-Type': 'application/json' });
+const rs = n => '₹' + Number(n).toLocaleString('en-IN');
+const J = (u, o = {}) => {
+  const url = u.startsWith('http') ? u : (API + (u.startsWith('/') ? u : '/' + u));
+  return fetch(url, { ...o, headers: H() }).then(async r => {
+    const d = await r.json();
+    if (!r.ok) { if (r.status == 401) { sessionStorage.clear(); location.reload(); } throw Error(d.error); }
+    return d;
+  }).catch(err => {
+    if (err.message === 'Failed to fetch' || err.name === 'TypeError')
+      throw Error('Cannot connect to backend server. Make sure node server.js is running on http://localhost:3000');
+    throw err;
+  });
+};
+const E = e => alert(e.message);
+const readImg = f => new Promise(res => {
+  if (!f) return res(undefined);
+  const r = new FileReader(); r.onload = () => {
+    const i = new Image(); i.onload = () => {
+      const m = Math.min(1, 1000 / Math.max(i.width, i.height)), c = document.createElement('canvas');
+      c.width = i.width * m; c.height = i.height * m;
+      c.getContext('2d').drawImage(i, 0, 0, c.width, c.height);
+      res(c.toDataURL('image/jpeg', .82));
+    }; i.src = r.result;
+  }; r.readAsDataURL(f);
+});
+
+/* ── Sidebar / tabs ─────────────────────── */
+function toggleSidebar() {
+  $('sidebar').classList.toggle('open');
+  $('sidebarOverlay').classList.toggle('open');
+}
+function tab(n) {
+  $('v1').classList.toggle('hide', n !== 1);
+  $('v2').classList.toggle('hide', n !== 2);
+  $('navBookings').classList.toggle('active', n === 1);
+  $('navEvents').classList.toggle('active', n === 2);
+  if (window.innerWidth <= 768) toggleSidebar();
+}
+
+/* ── Data loading ───────────────────────── */
+let _firstLoad = true;
+async function load() {
+  const d = await J('/api/admin/bookings');
+  all = d.bookings; evs = d.events;
+  if (!lay.length) lay = await J('/api/layout');
+  const sr = JSON.stringify(evs.filter(e => !e.ended).map(e => e.id + e.startsIn + e.endsIn + e.booked + e.pending));
+  if (sr !== window._sr) { window._sr = sr; drawRem(); }
+  const sb = JSON.stringify(all);
+  if (sb !== window._sb) { window._sb = sb; drawB(); }
+  const sg = JSON.stringify(evs);
+  if (sg !== window._sg) { window._sg = sg; drawE(); }
+  if (_firstLoad) {
+    _firstLoad = false;
+    // Apply entrance animation only on first paint, then remove
+    document.querySelectorAll('#l, #el').forEach(el => {
+      el.classList.add('animate-in');
+      setTimeout(() => el.classList.remove('animate-in'), 600);
+    });
+  }
+}
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cache = new Map();
+
+function thumbs() {
+  document.querySelectorAll('img[data-sh]').forEach(async i => {
+    const id = i.dataset.sh;
+    if (cache.has(id)) { i.src = cache.get(id); return; }
+    try {
+      const r = await fetch(API + `/api/admin/bookings/${id}/screenshot`, { headers: { 'x-admin': k } });
+      if (!r.ok) return;
+      const u = URL.createObjectURL(await r.blob());
+      cache.set(id, u); i.src = u;
+    } catch (e) {}
+  });
+}
+function zoom(id) {
+  if (cache.has(id)) { $('lbi').src = cache.get(id); $('lb').classList.remove('hide'); }
+}
+function copy(t) {
+  if (!t || t === '—') return;
+  navigator.clipboard && navigator.clipboard.writeText(t);
+  // Show toast
+  const el = document.createElement('div');
+  el.className = 'copy-toast';
+  el.textContent = '✓ UTR copied to clipboard';
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add('out'), 1500);
+  setTimeout(() => el.remove(), 1800);
+}
+
+/* ── Reminders ──────────────────────────── */
+function drawRem() {
+  const up = evs.filter(e => !e.ended).sort((x, y) => x.date.localeCompare(y.date));
+  $('rem').innerHTML = up.map(e => {
+    const live = e.startsIn <= 0;
+    const cls = live ? 'live' : e.startsIn <= 3 ? 'soon' : 'upcoming';
+    const w = live
+      ? '🟢 Live now · ends ' + (e.endsIn <= 0 ? 'today' : 'in ' + e.endsIn + ' day' + (e.endsIn > 1 ? 's' : ''))
+      : '⏰ ' + (e.startsIn === 1 ? 'Starts tomorrow' : 'Starts in ' + e.startsIn + ' days');
+    return `<div class="reminder-card ${cls}">
+      <div class="reminder-left">
+        <b>${esc(e.name)}</b>
+        <div class="meta">${e.date}${e.endDate !== e.date ? ' → ' + e.endDate : ''}</div>
+      </div>
+      <div class="reminder-right">
+        <div class="countdown">${w}</div>
+        <div class="sub">${e.booked}/${lay.length} stalls booked · ${e.pending} awaiting approval</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Bookings list ──────────────────────── */
+function drawB() {
+  const n = id => (evs.find(e => e.id === id) || {}).name || '';
+  const vis = all.filter(b => b.status !== 'expired');
+  const cnt = s => s ? all.filter(b => b.status === s).length : vis.length;
+  const ap = all.filter(b => b.status === 'approved');
+
+  // Stats
+  $('stats').innerHTML = [
+    ['Needs Approval', cnt('submitted'), 'amber', '⚡'],
+    ['Approved', ap.length, 'green', '✓'],
+    ['Stalls Booked', ap.reduce((x, b) => x + b.stalls.length, 0), 'blue', '🎯'],
+    ['Revenue', rs(ap.reduce((x, b) => x + b.amount, 0)), 'purple', '💰']
+  ].map(([t, v, c, ico]) => `
+    <div class="stat-card ${c}">
+      <div class="stat-label"><span class="dot"></span>${t}</div>
+      <div class="stat-value">${v}</div>
+    </div>`).join('');
+
+  // Pending badge in sidebar
+  const pc = cnt('submitted');
+  const badge = $('pendingBadge');
+  badge.textContent = pc;
+  badge.classList.toggle('hide', !pc);
+
+  // Title
+  document.title = (pc ? '(' + pc + ') ' : '') + 'Admin · Hotel Shiv';
+
+  // Filter chips
+  $('fl').innerHTML = [
+    ['submitted', '⚡ Needs approval'],
+    ['approved', '✓ Approved'],
+    ['rejected', '✕ Rejected'],
+    ['', '☰ All']
+  ].map(([s, t]) =>
+    `<button class="filter-chip${f === s ? ' active' : ''}" onclick="f='${s}';drawB()">${t} (${cnt(s)})</button>`
+  ).join('');
+
+  // Booking list
+  const ql = q.trim().toLowerCase();
+  const L = vis.filter(b =>
+    (!f || b.status === f) &&
+    (!ql || [b.name, b.phone, b.utr, b.stalls.join(' ')].join(' ').toLowerCase().includes(ql))
+  );
+
+  $('l').innerHTML = L.map((b, i) => `
+    <div class="booking-card" style="animation-delay:${i * .04}s">
+      ${b.shot
+        ? `<img class="booking-thumb" data-sh="${b.id}" onclick="zoom('${b.id}')" alt="Payment screenshot">`
+        : '<div class="no-thumb">No screenshot</div>'
+      }
+      <div class="booking-body">
+        <div class="booking-header">
+          <div>
+            <span class="booking-name">${esc(b.name)}</span>
+            <a class="booking-phone" href="tel:${esc(b.phone)}">${esc(b.phone)}</a>
+          </div>
+          <span class="status-badge ${b.status}">${b.status}</span>
+        </div>
+        <div class="booking-meta">${esc(n(b.eventId))} · ${new Date(b.createdAt).toLocaleString('en-IN')}</div>
+        <div class="booking-stalls">
+          ${b.stalls.map(s => `<span class="stall-chip">${s}</span>`).join('')}
+          <span class="booking-amount">${rs(b.amount)}</span>
+        </div>
+        <div class="booking-utr">UTR <span class="utr-code" title="Click to copy" onclick="copy('${esc(b.utr || '')}')">${esc(b.utr || '—')}</span></div>
+        <div class="booking-actions">
+          ${b.status === 'submitted'
+            ? `<button class="btn btn-approve" onclick="act('${b.id}','approve')">✓ Approve</button>
+               <button class="btn btn-reject" onclick="act('${b.id}','reject')">✕ Reject</button>`
+            : ''
+          }
+          ${b.status === 'approved'
+            ? `<a class="btn-receipt" href="/receipt/${b.id}" target="_blank">🧾 Receipt ${b.receiptNo}</a>`
+            : ''
+          }
+        </div>
+      </div>
+    </div>`
+  ).join('') || `
+    <div class="empty-state">
+      <div class="icon">📭</div>
+      <p>Nothing here.</p>
+    </div>`;
+
+  thumbs();
+}
+
+/* ── Events list ────────────────────────── */
+function drawE() {
+  const sorted = [...evs].sort((x, y) => (x.ended - y.ended) || x.date.localeCompare(y.date));
+  $('el').innerHTML = sorted.map((e, i, arr) => `
+    ${e.ended && (i === 0 || !arr[i - 1].ended)
+      ? '<div class="ended-divider">Ended — hidden from website, data is kept</div>'
+      : ''
+    }
+    <div class="event-card${e.ended ? ' ended-card' : ''}" data-id="${e.id}">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Name</label>
+          <input class="en" value="${esc(e.name)}">
+        </div>
+        <div class="form-group">
+          <label>Start date</label>
+          <input class="es" type="date" value="${e.date}">
+        </div>
+        <div class="form-group">
+          <label>End date</label>
+          <input class="ee" type="date" value="${e.endDate}">
+        </div>
+        <div class="form-group">
+          <label>Default price / stall (₹)</label>
+          <input class="ep" type="number" value="${e.price}">
+        </div>
+        <div class="form-group">
+          <label>Time</label>
+          <input class="et" value="${esc(e.time || '')}">
+        </div>
+        <div class="form-group">
+          <label>Poster ${e.poster ? '(uploaded ✓)' : ''}</label>
+          <input class="ef" type="file" accept="image/*">
+        </div>
+        <div class="form-group full-span">
+          <label>About</label>
+          <textarea class="ea" rows="3">${esc(e.about || '')}</textarea>
+        </div>
+      </div>
+      <details ${Object.keys(e.prices).length ? 'open' : ''}>
+        <summary>Custom price per stall (blank = default)</summary>
+        <div class="price-grid">
+          ${lay.map(s => `
+            <div class="form-group">
+              <label>${s.id}</label>
+              <input class="sp" data-s="${s.id}" type="number" min="1" placeholder="${e.price}" value="${e.prices[s.id] || ''}">
+            </div>
+          `).join('')}
+        </div>
+      </details>
+      <div class="event-card-actions">
+        <button class="btn btn-primary" onclick="saveEv('${e.id}',this)">💾 Save changes</button>
+        <button class="btn btn-danger" onclick="delEv('${e.id}')">🗑 Delete</button>
+      </div>
+    </div>`
+  ).join('');
+}
+
+/* ── Event CRUD ─────────────────────────── */
+async function saveEv(id, btn) {
+  const c = btn.closest('.event-card');
+  const prices = {};
+  c.querySelectorAll('.sp').forEach(i => { if (+i.value > 0) prices[i.dataset.s] = +i.value; });
+  try {
+    const poster = await readImg(c.querySelector('.ef').files[0]);
+    await J('/api/admin/events/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({
+        poster, time: c.querySelector('.et').value, about: c.querySelector('.ea').value,
+        name: c.querySelector('.en').value, date: c.querySelector('.es').value,
+        endDate: c.querySelector('.ee').value, price: c.querySelector('.ep').value, prices
+      })
+    });
+    btn.textContent = '✓ Saved!';
+    btn.classList.add('saved-pulse');
+    setTimeout(() => { btn.textContent = '💾 Save changes'; btn.classList.remove('saved-pulse'); }, 1500);
+    load();
+  } catch (e) { E(e); }
+}
+async function delEv(id) {
+  if (confirm('Delete this event? This cannot be undone.'))
+    try { await J('/api/admin/events/' + id, { method: 'DELETE' }); load(); } catch (e) { E(e); }
+}
+async function addEv() {
+  try {
+    const poster = await readImg($('pf').files[0]);
+    await J('/api/admin/events', {
+      method: 'POST',
+      body: JSON.stringify({
+        poster,
+        time: $('tm').value,
+        about: $('ab').value,
+        name: $('n').value,
+        date: $('d').value,
+        endDate: $('ed').value,
+        price: $('p').value
+      })
+    });
+    $('n').value = $('p').value = $('d').value = $('ed').value = $('ab').value = '';
+    load();
+  } catch (e) { E(e); }
+}
+async function act(id, a) {
+  const msg = a === 'approve'
+    ? 'Approve this booking? Make sure the amount and UTR match your bank statement and the screenshot.'
+    : 'Reject this booking and release the stalls?';
+  if (confirm(msg))
+    try { await J(`/api/admin/bookings/${id}/${a}`, { method: 'POST' }); load(); } catch (e) { E(e); }
+}
+
+/* ── Init ───────────────────────────────── */
+load();
+setInterval(load, 6000);
+</script>
+</body>
+</html>

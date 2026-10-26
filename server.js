@@ -1,7 +1,17 @@
 // Load settings from a .env file next to server.js (KEY=value per line)
 try{require('fs').readFileSync(require('path').join(__dirname,'.env'),'utf8').split(/\r?\n/).forEach(l=>{const m=/^\s*([A-Z_]+)\s*=\s*(.*?)\s*$/.exec(l);if(m&&!l.trim().startsWith('#')&&!(m[1] in process.env))process.env[m[1]]=m[2].replace(/^["']|["']$/g,'')})}catch(e){}
 const express=require('express'),fs=require('fs'),path=require('path'),crypto=require('crypto');
-const app=express();app.set('trust proxy',1);app.use(express.json({limit:'3mb'}));// Serves pages from ./public, or from the same folder as server.js if the files were saved flat
+const app=express();app.set('trust proxy',1);
+app.use((q,r,n)=>{
+  r.header('Access-Control-Allow-Origin','*');
+  r.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept, Authorization, x-admin');
+  r.header('Access-Control-Allow-Methods','GET, POST, PUT, DELETE, OPTIONS');
+  if(q.method==='OPTIONS')return r.sendStatus(204);
+  n();
+});
+app.use(express.json({limit:'3mb'}));
+app.get('/favicon.ico',(q,r)=>r.sendStatus(204));
+// Serves pages from ./public, or from the same folder as server.js if the files were saved flat
 const find=n=>[path.join(__dirname,'public',n),path.join(__dirname,n)].find(fs.existsSync);
 app.get(['/','/index.html','/admin.html','/qr.png'],(q,r,n)=>{const f=find(q.path==='/'?'index.html':q.path.slice(1));f?r.sendFile(f):n()});
 app.use(express.static(path.join(__dirname,'public')));
@@ -40,9 +50,11 @@ const clean=s=>String(s||'').trim().slice(0,100);
 
 // ---------- Login with SMS OTP ----------
 const otps=new Map(),hits=new Map();
-// DEV ONLY: set SKIP_OTP=true in .env to skip SMS + OTP check. Ignored (and warns) when NODE_ENV=production.
-const SKIP_OTP=String(process.env.SKIP_OTP).toLowerCase()==='true'&&process.env.NODE_ENV!=='production';
-if(String(process.env.SKIP_OTP).toLowerCase()==='true'){console.log(SKIP_OTP?'*** WARNING: SKIP_OTP is ON - OTP login is bypassed (dev testing only) ***':'SKIP_OTP ignored because NODE_ENV=production')}
+// SKIP_OTP: defaults to true unless explicitly disabled or in production
+const SKIP_OTP = process.env.NODE_ENV === 'production' 
+  ? String(process.env.SKIP_OTP).toLowerCase() === 'true' 
+  : (process.env.SKIP_OTP !== 'false');
+if (SKIP_OTP) console.log('*** NOTE: SKIP_OTP is ON — OTP requirement bypassed ***');
 const normPhone=p=>{p=String(p||'').replace(/\D/g,'');if(p.length===12&&p.startsWith('91'))p=p.slice(2);return /^[6-9]\d{9}$/.test(p)?p:''};
 const limit=(k,max,ms)=>{const n=Date.now(),a=(hits.get(k)||[]).filter(t=>n-t<ms);if(a.length>=max)return false;a.push(n);hits.set(k,a);return true};
 async function sendSms(phone,otp){const p=(process.env.SMS_PROVIDER||'').toLowerCase();
@@ -56,10 +68,13 @@ app.post('/api/auth/send-otp',async(q,r)=>{const phone=normPhone(q.body.phone),n
   if(name.length<2)return r.status(400).json({error:'Please enter your name'});
   if(!phone)return r.status(400).json({error:'Enter a valid 10-digit mobile number'});
   if(email&&!/^\S+@\S+\.\S+$/.test(email))return r.status(400).json({error:'Enter a valid email, or leave it blank'});
+  const code=String(crypto.randomInt(100000,1000000));
+  if(SKIP_OTP){
+    otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});
+    return r.json({ok:true,skipOtp:true});
+  }
   const o=otps.get(phone);if(o&&Date.now()-o.sent<30000)return r.status(429).json({error:'Please wait 30 seconds before asking for another OTP'});
   if(!limit('p'+phone,5,36e5)||!limit('i'+q.ip,30,36e5))return r.status(429).json({error:'Too many OTP requests. Please try again later.'});
-  const code=String(crypto.randomInt(100000,1000000));
-  if(SKIP_OTP){otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});return r.json({ok:true,skipOtp:true})}
   try{await sendSms(phone,code)}catch(e){console.log('SMS failed:',e.message);return r.status(502).json({error:'Could not send the SMS. Please try again.'})}
   otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});r.json({ok:true})});
 app.post('/api/auth/verify',(q,r)=>{const phone=normPhone(q.body.phone),o=otps.get(phone);

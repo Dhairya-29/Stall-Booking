@@ -1,0 +1,206 @@
+[
+  {
+    "suite": "Static Assets",
+    "testName": "Home page index.html serves HTTP 200",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Static Assets",
+    "testName": "Admin page admin.html serves HTTP 200",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "API Layout",
+    "testName": "Hall layout returns 27 stalls",
+    "passed": true,
+    "details": "Count: 27"
+  },
+  {
+    "suite": "Auth Validation",
+    "testName": "Rejects name < 2 characters",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Auth Validation",
+    "testName": "Rejects non-10-digit mobile number",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Auth Validation",
+    "testName": "Rejects invalid email format",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Auth Flow",
+    "testName": "Sends OTP for valid details",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Auth Security",
+    "testName": "Throttles rapid consecutive OTP requests (30s cooldown)",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Auth Security",
+    "testName": "Rejects incorrect OTP",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Auth Flow",
+    "testName": "Verifies correct OTP and returns auth session token",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "User Profile",
+    "testName": "/api/me returns authenticated user details",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "API Security",
+    "testName": "Unauthenticated requests to /api/me rejected with 401",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Events Module",
+    "testName": "Fetches active events list",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Stalls Module",
+    "testName": "Fetches stalls availability and pricing for event",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Booking Validation",
+    "testName": "Rejects bookings with more than 10 stalls",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Booking Validation",
+    "testName": "Rejects unknown stall IDs",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Booking Flow",
+    "testName": "Successfully reserves stalls with 10-minute hold",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Concurrency / Race Conditions",
+    "testName": "Blocks double-booking on currently held stalls (409 Conflict)",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Payment Validation",
+    "testName": "Rejects UTR shorter than 8 alphanumeric characters",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Payment Validation",
+    "testName": "Validates image magic bytes (rejects fake image base64)",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Payment Flow",
+    "testName": "Submits payment details, status transitions to \"submitted\"",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Payment Security",
+    "testName": "Rejects duplicate UTR already used in another booking (409 Conflict)",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Admin Security",
+    "testName": "Unauthorized admin access blocked (401)",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Admin Dashboard",
+    "testName": "Admin fetches all bookings & event metrics",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Admin Dashboard",
+    "testName": "Admin retrieves uploaded payment screenshot image",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Admin Approval",
+    "testName": "Admin approves booking, generates receipt number (e.g. RC-0001)",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Customer Receipt",
+    "testName": "Receipt page renders with CONFIRMED status and print button",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Admin Rejection",
+    "testName": "Admin rejects booking, stalls released",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Stall Release",
+    "testName": "Rejected booking stalls immediately become available again",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Event Management",
+    "testName": "Rejects event creation with price <= 0",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Event Management",
+    "testName": "Successfully creates new event with dates and description",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Event Management",
+    "testName": "Updates event details and custom per-stall pricing overrides",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Event Management",
+    "testName": "Successfully deletes event with no active bookings",
+    "passed": true,
+    "details": ""
+  },
+  {
+    "suite": "Event Management",
+    "testName": "Blocks deletion of event that has active bookings (400)",
+    "passed": true,
+    "details": ""
+  }
+]

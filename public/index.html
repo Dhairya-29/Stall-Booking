@@ -1,4 +1,5 @@
 <!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=theme-color content="#091540"><title>Hotel Shiv · Stall Booking</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏨</text></svg>">
 <link rel=preconnect href=https://fonts.googleapis.com><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel=stylesheet>
 <style>
 :root{--bg:#eef4fd;--soft:#dce8fb;--c:#fff;--t:#091540;--m:#5a6591;--p:#1b2cc1;--ln:#09154022;--ok:#2e8b57;--am:#e9a319}
@@ -40,7 +41,7 @@ label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}input{width
 .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--t);color:#fff;padding:10px 18px;border-radius:12px;z-index:30;max-width:90%}
 </style></head><body><div class=app>
 <div id=login class="v hide"><div class=wel><h2>Welcome 👋</h2><p style="margin:6px 0 0;color:#abd2fa">Login to book your stall at Hotel Shiv</p></div>
-<div class=card id=l1><h2>Your details</h2><label>Full name</label><input id=ln autocomplete=name><label>Mobile number</label><input id=lp inputmode=numeric maxlength=10 autocomplete=tel placeholder="10-digit number"><label>Email (optional — for event reminders)</label><input id=lm type=email autocomplete=email><p class=err id=le></p><button class="btn w" onclick=sendOtp()>Send OTP</button></div>
+<div class=card id=l1><h2>Your details</h2><label>Full name</label><input id=ln autocomplete=name placeholder="Your full name"><label>Mobile number</label><input id=lp inputmode=numeric maxlength=10 autocomplete=tel placeholder="10-digit number"><label>Email (optional — for event reminders)</label><input id=lm type=email autocomplete=email placeholder="name@example.com"><p class=err id=le></p><button class="btn w" onclick=sendOtp()>Continue →</button></div>
 <div class="card hide" id=l2><h2>Enter OTP</h2><p class=m>We sent a 6-digit code by SMS to <b id=otpTo></b></p><input id=lo inputmode=numeric maxlength=6 autocomplete=one-time-code style="text-align:center;font-size:24px;letter-spacing:8px"><p class=err id=le2></p><button class="btn w" onclick=verifyOtp()>Verify & continue</button><p style="text-align:center;margin:10px 0 0"><button class=rm id=rsd onclick=sendOtp()>Resend OTP</button> · <button class=rm onclick=chg()>Change number</button></p></div></div>
 <div id=home class="v hide"><div class=loc><span>📍</span><div>Hotel Shiv<small>Ground Floor Hall</small></div><button class=lo onclick=logout()><span id=who></span> · Log out</button></div><div class=car id=car></div><div class=dots id=dots></div>
 <h3>Upcoming events</h3><div class=row id=cards></div><div id=none class="m sec hide">No dates open yet. Please check back soon.</div></div>
@@ -57,14 +58,27 @@ label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}input{width
 <div class="note b">Pay by scanning the UPI QR. Your booking stays Pending for approval until our team checks it.</div><div class="m sec" style="font-size:13px">ⓘ Non-refundable.</div><p class="err sec" id=e1></p>
 <div class=bar><div class=r><div><div class=m style="font-size:13px" id=bc></div><div class=tot id=bt></div></div><button class=btn onclick=hold()>Continue to pay →</button></div></div></div>
 <div id=pay class="v hide"><div class=hd><h1>Pay now</h1></div><div class=card style="text-align:center"><div class=m>Amount to pay</div><p class=big>₹<span id=amt></span></p><div>Stalls <b id=ps></b></div><div class=timer><div id=bar2></div></div><div class=m>Held for you · <b id=cd></b> left</div>
-<img class=qr src=qr.png alt="UPI QR" onerror="this.alt='Add your QR at public/qr.png'"><p class=m>Scan with any UPI app and pay the exact amount. Then enter your transaction ID and upload the payment-success screenshot.</p><input id=utr placeholder="UTR / Transaction ID (unique)" style="text-align:center" autocapitalize=characters><label class=up for=shot><span id=upt>📷 Upload payment screenshot</span><img id=prev class=hide></label><input id=shot type=file accept=image/* class=hide><p class=err id=e2></p><button class="btn w" id=pb onclick=paid()>I've paid — submit</button></div></div>
+<img class=qr id=qrImg src=qr.png alt="UPI QR" onerror="this.alt='Add your QR at public/qr.png'"><p class=m>Scan with any UPI app and pay the exact amount. Then enter your transaction ID and upload the payment-success screenshot.</p><input id=utr placeholder="UTR / Transaction ID (unique)" style="text-align:center" autocapitalize=characters><label class=up for=shot><span id=upt>📷 Upload payment screenshot</span><img id=prev class=hide></label><input id=shot type=file accept=image/* class=hide><p class=err id=e2></p><button class="btn w" id=pb onclick=paid()>I've paid — submit</button></div></div>
 <div id=done class="v hide"><div class=hd><h1>Booking status</h1></div><div class=card id=st></div><div class=sec><button class="btn g w" onclick="show('home')">Back to home</button></div></div>
 <div id=mine class="v hide"><div class=hd><h1>My Bookings</h1></div><div id=ml></div></div>
 <div class="nav hide" id=nav><button id=n1 class=on onclick="show('home')"><span>🧭</span>Explore</button><button id=n2 onclick="show('mine')"><span>🎟</span>My Bookings</button></div>
 </div><div id=lay class="ov hide" onclick="if(event.target===this)this.classList.add('hide')"><div><div class=hd style="background:none"><button class=ib onclick="$('lay').classList.add('hide')">✕</button><h1>Hall layout</h1></div><div class=hall id=lmap></div></div></div>
 <div id=toast class="toast hide"></div><script>
 const $=i=>document.getElementById(i);let tok=localStorage.getItem('tok')||'',me=null;
-const J=(u,o={})=>fetch(u,{...o,headers:{...(o.headers||{}),...(tok?{Authorization:'Bearer '+tok}:{})}}).then(async r=>{const d=await r.json().catch(()=>({}));if(r.status===401&&tok){logout();throw Error('Please log in')}if(!r.ok)throw Error(d.error||'Something went wrong');return d});
+const API=(location.protocol==='file:'||(location.port&&location.port!=='3000'))?'http://localhost:3000':'';
+const J=(u,o={})=>{
+  const url=u.startsWith('http')?u:(API+(u.startsWith('/')?u:'/'+u));
+  return fetch(url,{...o,headers:{...(o.headers||{}),...(tok?{Authorization:'Bearer '+tok}:{})}}).then(async r=>{
+    const d=await r.json().catch(()=>({}));
+    if(r.status===401&&tok){logout();throw Error('Please log in')}
+    if(!r.ok)throw Error(d.error||'Something went wrong');
+    return d;
+  }).catch(err=>{
+    if(err.message==='Failed to fetch'||err.name==='TypeError')
+      throw Error('Cannot connect to backend. Please ensure node server.js is running on http://localhost:3000');
+    throw err;
+  });
+};
 function logout(){localStorage.removeItem('tok');location.reload()}
 const post=b=>({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}),rs=n=>'₹'+Number(n).toLocaleString('en-IN'),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const dt=d=>new Date(d+'T00:00'),fm=d=>dt(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
