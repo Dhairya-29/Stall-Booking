@@ -50,11 +50,17 @@ const clean=s=>String(s||'').trim().slice(0,100);
 
 // ---------- Login with SMS OTP ----------
 const otps=new Map(),hits=new Map();
-// SKIP_OTP: defaults to true unless explicitly disabled or in production
-const SKIP_OTP = process.env.NODE_ENV === 'production' 
-  ? String(process.env.SKIP_OTP).toLowerCase() === 'true' 
-  : (process.env.SKIP_OTP !== 'false');
-if (SKIP_OTP) console.log('*** NOTE: SKIP_OTP is ON — OTP requirement bypassed ***');
+// ============================================================
+// SMS & OTP AUTHENTICATION
+// Disabled for now. To re-enable later:
+// Set ENABLE_SMS=true in .env or Render Environment Variables
+// and provide SMS_PROVIDER (fast2sms or twilio) credentials.
+// ============================================================
+const ENABLE_SMS = String(process.env.ENABLE_SMS).toLowerCase() === 'true';
+console.log(ENABLE_SMS 
+  ? '*** SMS OTP is ENABLED ***' 
+  : '*** SMS OTP is DISABLED (direct login active). Set ENABLE_SMS=true to enable later. ***');
+
 const normPhone=p=>{p=String(p||'').replace(/\D/g,'');if(p.length===12&&p.startsWith('91'))p=p.slice(2);return /^[6-9]\d{9}$/.test(p)?p:''};
 const limit=(k,max,ms)=>{const n=Date.now(),a=(hits.get(k)||[]).filter(t=>n-t<ms);if(a.length>=max)return false;a.push(n);hits.set(k,a);return true};
 async function sendSms(phone,otp){const p=(process.env.SMS_PROVIDER||'').toLowerCase();
@@ -69,18 +75,18 @@ app.post('/api/auth/send-otp',async(q,r)=>{const phone=normPhone(q.body.phone),n
   if(!phone)return r.status(400).json({error:'Enter a valid 10-digit mobile number'});
   if(email&&!/^\S+@\S+\.\S+$/.test(email))return r.status(400).json({error:'Enter a valid email, or leave it blank'});
   const code=String(crypto.randomInt(100000,1000000));
-  if(SKIP_OTP){
-    otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});
+  otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});
+  if(!ENABLE_SMS){
     return r.json({ok:true,skipOtp:true});
   }
   const o=otps.get(phone);if(o&&Date.now()-o.sent<30000)return r.status(429).json({error:'Please wait 30 seconds before asking for another OTP'});
   if(!limit('p'+phone,5,36e5)||!limit('i'+q.ip,30,36e5))return r.status(429).json({error:'Too many OTP requests. Please try again later.'});
   try{await sendSms(phone,code)}catch(e){console.log('SMS failed:',e.message);return r.status(502).json({error:'Could not send the SMS. Please try again.'})}
-  otps.set(phone,{code,name,email,exp:Date.now()+5*60000,sent:Date.now(),tries:0});r.json({ok:true})});
+  r.json({ok:true})});
 app.post('/api/auth/verify',(q,r)=>{const phone=normPhone(q.body.phone),o=otps.get(phone);
-  if(!o||o.exp<Date.now())return r.status(400).json({error:'OTP expired. Please request a new one.'});
-  if(++o.tries>5){otps.delete(phone);return r.status(429).json({error:'Too many wrong attempts. Please request a new OTP.'})}
-  if(!SKIP_OTP&&String(q.body.otp||'').trim()!==o.code)return r.status(400).json({error:'Incorrect OTP'});
+  if(!o||o.exp<Date.now())return r.status(400).json({error:'Session expired. Please click Continue again.'});
+  if(ENABLE_SMS&&++o.tries>5){otps.delete(phone);return r.status(429).json({error:'Too many wrong attempts. Please request a new OTP.'})}
+  if(ENABLE_SMS&&String(q.body.otp||'').trim()!==o.code)return r.status(400).json({error:'Incorrect OTP'});
   otps.delete(phone);const old=db.users[phone]||{};
   const u=db.users[phone]={...old,phone,name:o.name,email:o.email||old.email||'',lastLogin:Date.now()};
   Object.keys(db.sessions).forEach(k=>{if(db.sessions[k].exp<Date.now())delete db.sessions[k]});
